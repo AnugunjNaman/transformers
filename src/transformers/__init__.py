@@ -185,6 +185,7 @@ _import_structure = {
     "models.decision_transformer": ["DECISION_TRANSFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP", "DecisionTransformerConfig"],
     "models.deit": ["DEIT_PRETRAINED_CONFIG_ARCHIVE_MAP", "DeiTConfig"],
     "models.detr": ["DETR_PRETRAINED_CONFIG_ARCHIVE_MAP", "DetrConfig"],
+    "models.prtr": ["PRTR_PRETRAINED_CONFIG_ARCHIVE_MAP", "PrtrConfig"],
     "models.dialogpt": [],
     "models.distilbert": ["DISTILBERT_PRETRAINED_CONFIG_ARCHIVE_MAP", "DistilBertConfig", "DistilBertTokenizer"],
     "models.dit": [],
@@ -602,6 +603,7 @@ else:
     _import_structure["models.convnext"].append("ConvNextFeatureExtractor")
     _import_structure["models.deit"].append("DeiTFeatureExtractor")
     _import_structure["models.detr"].append("DetrFeatureExtractor")
+    _import_structure["models.prtr"].append("PrtrFeatureExtractor")
     _import_structure["models.dpt"].append("DPTFeatureExtractor")
     _import_structure["models.flava"].extend(["FlavaFeatureExtractor", "FlavaProcessor"])
     _import_structure["models.glpn"].append("GLPNFeatureExtractor")
@@ -636,6 +638,15 @@ else:
             "DetrForSegmentation",
             "DetrModel",
             "DetrPreTrainedModel",
+        ]
+    )
+    _import_structure["models.prtr"].extend(
+        [
+            "PRTR_PRETRAINED_MODEL_ARCHIVE_LIST",
+            "PrtrForObjectDetection",
+            "PrtrForSegmentation",
+            "PrtrModel",
+            "PrtrPreTrainedModel",
         ]
     )
 
@@ -2813,6 +2824,7 @@ if TYPE_CHECKING:
     )
     from .models.deit import DEIT_PRETRAINED_CONFIG_ARCHIVE_MAP, DeiTConfig
     from .models.detr import DETR_PRETRAINED_CONFIG_ARCHIVE_MAP, DetrConfig
+    from .models.prtr import PRTR_PRETRAINED_CONFIG_ARCHIVE_MAP, PrtrConfig
     from .models.distilbert import DISTILBERT_PRETRAINED_CONFIG_ARCHIVE_MAP, DistilBertConfig, DistilBertTokenizer
     from .models.dpr import (
         DPR_PRETRAINED_CONFIG_ARCHIVE_MAP,
@@ -3175,6 +3187,7 @@ if TYPE_CHECKING:
         from .models.convnext import ConvNextFeatureExtractor
         from .models.deit import DeiTFeatureExtractor
         from .models.detr import DetrFeatureExtractor
+        from .models.prtr import PrtrFeatureExtractor
         from .models.dpt import DPTFeatureExtractor
         from .models.flava import FlavaFeatureExtractor, FlavaProcessor
         from .models.glpn import GLPNFeatureExtractor
@@ -3203,6 +3216,13 @@ if TYPE_CHECKING:
             DetrForSegmentation,
             DetrModel,
             DetrPreTrainedModel,
+        )
+        from .models.prtr import (
+            PRTR_PRETRAINED_MODEL_ARCHIVE_LIST,
+            PrtrForObjectDetection,
+            PrtrForSegmentation,
+            PrtrModel,
+            PrtrPreTrainedModel,
         )
 
     try:

@@ -54,6 +54,7 @@ MODEL_MAPPING_NAMES = OrderedDict(
         ("decision_transformer_gpt2", "DecisionTransformerGPT2Model"),
         ("deit", "DeiTModel"),
         ("detr", "DetrModel"),
+        ("prtr", "PrtrModel"),
         ("distilbert", "DistilBertModel"),
         ("dpr", "DPRQuestionEncoder"),
         ("dpt", "DPTModel"),
@@ -339,6 +340,7 @@ MODEL_FOR_IMAGE_SEGMENTATION_MAPPING_NAMES = OrderedDict(
         # Do not add new models here, this class will be deprecated in the future.
         # Model for Image Segmentation mapping
         ("detr", "DetrForSegmentation"),
+        ("prtr", "PrtrForSegmentation"),
     ]
 )
 
@@ -411,6 +413,7 @@ MODEL_FOR_OBJECT_DETECTION_MAPPING_NAMES = OrderedDict(
     [
         # Model for Object Detection mapping
         ("detr", "DetrForObjectDetection"),
+        ("prtr", "PrtrForObjectDetection"),
         ("yolos", "YolosForObjectDetection"),
     ]
 )
