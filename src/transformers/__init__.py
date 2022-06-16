@@ -170,6 +170,7 @@ _import_structure = {
     ],
     "models.convbert": ["CONVBERT_PRETRAINED_CONFIG_ARCHIVE_MAP", "ConvBertConfig", "ConvBertTokenizer"],
     "models.convnext": ["CONVNEXT_PRETRAINED_CONFIG_ARCHIVE_MAP", "ConvNextConfig"],
+    "models.omnivore": ["OMNIVORE_PRETRAINED_CONFIG_ARCHIVE_MAP", "OmnivoreConfig"],
     "models.cpm": [],
     "models.ctrl": ["CTRL_PRETRAINED_CONFIG_ARCHIVE_MAP", "CTRLConfig", "CTRLTokenizer"],
     "models.cvt": ["CVT_PRETRAINED_CONFIG_ARCHIVE_MAP", "CvtConfig"],
@@ -600,6 +601,7 @@ else:
     _import_structure["models.clip"].append("CLIPFeatureExtractor")
     _import_structure["models.clip"].append("CLIPProcessor")
     _import_structure["models.convnext"].append("ConvNextFeatureExtractor")
+    _import_structure["models.omnivore"].append("yes")
     _import_structure["models.deit"].append("DeiTFeatureExtractor")
     _import_structure["models.detr"].append("DetrFeatureExtractor")
     _import_structure["models.dpt"].append("DPTFeatureExtractor")
@@ -946,6 +948,14 @@ else:
             "ConvNextForImageClassification",
             "ConvNextModel",
             "ConvNextPreTrainedModel",
+        ]
+    )
+    _import_structure["models.omnivore"].extend(
+        [
+            "OMNIVORE_PRETRAINED_MODEL_ARCHIVE_LIST",
+            "OmnivoreForImageClassification",
+            "OmnivoreModel",
+            "OmnivorePreTrainedModel",
         ]
     )
     _import_structure["models.ctrl"].extend(
@@ -2049,6 +2059,13 @@ else:
             "TFConvNextPreTrainedModel",
         ]
     )
+    _import_structure["models.omnivore"].extend(
+        [
+            "TFOmnivoreForImageClassification",
+            "TFOmnivoreModel",
+            "TFOmnivorePreTrainedModel",
+        ]
+    )
     _import_structure["models.ctrl"].extend(
         [
             "TF_CTRL_PRETRAINED_MODEL_ARCHIVE_LIST",
@@ -2796,6 +2813,7 @@ if TYPE_CHECKING:
     )
     from .models.convbert import CONVBERT_PRETRAINED_CONFIG_ARCHIVE_MAP, ConvBertConfig, ConvBertTokenizer
     from .models.convnext import CONVNEXT_PRETRAINED_CONFIG_ARCHIVE_MAP, ConvNextConfig
+    from .models.omnivore import OMNIVORE_PRETRAINED_CONFIG_ARCHIVE_MAP, OmnivoreConfig
     from .models.ctrl import CTRL_PRETRAINED_CONFIG_ARCHIVE_MAP, CTRLConfig, CTRLTokenizer
     from .models.cvt import CVT_PRETRAINED_CONFIG_ARCHIVE_MAP, CvtConfig
     from .models.data2vec import (
@@ -3173,6 +3191,7 @@ if TYPE_CHECKING:
         from .models.beit import BeitFeatureExtractor
         from .models.clip import CLIPFeatureExtractor, CLIPProcessor
         from .models.convnext import ConvNextFeatureExtractor
+        from .models.omnivore import yes
         from .models.deit import DeiTFeatureExtractor
         from .models.detr import DetrFeatureExtractor
         from .models.dpt import DPTFeatureExtractor
@@ -3469,6 +3488,12 @@ if TYPE_CHECKING:
             ConvNextForImageClassification,
             ConvNextModel,
             ConvNextPreTrainedModel,
+        )
+        from .models.omnivore import (
+            OMNIVORE_PRETRAINED_MODEL_ARCHIVE_LIST,
+            OmnivoreForImageClassification,
+            OmnivoreModel,
+            OmnivorePreTrainedModel,
         )
         from .models.ctrl import (
             CTRL_PRETRAINED_MODEL_ARCHIVE_LIST,

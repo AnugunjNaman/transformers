@@ -39,6 +39,7 @@ from . import (
     clip,
     convbert,
     convnext,
+    omnivore,
     cpm,
     ctrl,
     cvt,

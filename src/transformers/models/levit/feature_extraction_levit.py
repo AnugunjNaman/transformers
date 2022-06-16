@@ -54,9 +54,9 @@ class LevitFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMixin)
             Whether or not to center crop the input to `size`.
         do_normalize (`bool`, *optional*, defaults to `True`):
             Whether or not to normalize the input with mean and standard deviation.
-        image_mean (`List[int]`, defaults to `[0.229, 0.224, 0.225]`):
+        image_mean (`List[int]`, defaults to `[0.485, 0.456, 0.406]`):
             The sequence of means for each channel, to be used when normalizing images.
-        image_std (`List[int]`, defaults to `[0.485, 0.456, 0.406]`):
+        image_std (`List[int]`, defaults to `[0.229, 0.224, 0.225]`):
             The sequence of standard deviations for each channel, to be used when normalizing images.
     """
 
