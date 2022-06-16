@@ -26,7 +26,7 @@ from PIL import Image
 
 import requests
 from huggingface_hub import hf_hub_download
-from transformers import OmnivoreConfig, yes, OmnivoreForImageClassification
+from transformers import OmnivoreConfig, OmnivoreForImageClassification, yes
 from transformers.utils import logging
 
 

@@ -18,17 +18,10 @@
 from typing import TYPE_CHECKING
 
 # rely on isort to merge the imports
-from ...utils import (
-    OptionalDependencyNotAvailable,
-    _LazyModule,
-    is_torch_available,
-    is_vision_available,
-)
+from ...utils import OptionalDependencyNotAvailable, _LazyModule, is_torch_available, is_vision_available
 
 
-_import_structure = {
-    "configuration_omnivore": ["OMNIVORE_PRETRAINED_CONFIG_ARCHIVE_MAP", "OmnivoreConfig"]
-}
+_import_structure = {"configuration_omnivore": ["OMNIVORE_PRETRAINED_CONFIG_ARCHIVE_MAP", "OmnivoreConfig"]}
 
 try:
     if not is_vision_available():
@@ -46,7 +39,7 @@ except OptionalDependencyNotAvailable:
 else:
     _import_structure["modeling_omnivore"] = [
         "OMNIVORE_PRETRAINED_MODEL_ARCHIVE_LIST",
-        "OmnivoreForImageClassification",
+        "OmnivoreForJointClassification",
         "OmnivoreModel",
         "OmnivorePreTrainedModel",
     ]

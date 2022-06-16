@@ -170,7 +170,6 @@ _import_structure = {
     ],
     "models.convbert": ["CONVBERT_PRETRAINED_CONFIG_ARCHIVE_MAP", "ConvBertConfig", "ConvBertTokenizer"],
     "models.convnext": ["CONVNEXT_PRETRAINED_CONFIG_ARCHIVE_MAP", "ConvNextConfig"],
-    "models.omnivore": ["OMNIVORE_PRETRAINED_CONFIG_ARCHIVE_MAP", "OmnivoreConfig"],
     "models.cpm": [],
     "models.ctrl": ["CTRL_PRETRAINED_CONFIG_ARCHIVE_MAP", "CTRLConfig", "CTRLTokenizer"],
     "models.cvt": ["CVT_PRETRAINED_CONFIG_ARCHIVE_MAP", "CvtConfig"],
@@ -260,6 +259,7 @@ _import_structure = {
         "NYSTROMFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP",
         "NystromformerConfig",
     ],
+    "models.omnivore": ["OMNIVORE_PRETRAINED_CONFIG_ARCHIVE_MAP", "OmnivoreConfig"],
     "models.openai": ["OPENAI_GPT_PRETRAINED_CONFIG_ARCHIVE_MAP", "OpenAIGPTConfig", "OpenAIGPTTokenizer"],
     "models.opt": ["OPTConfig"],
     "models.pegasus": ["PEGASUS_PRETRAINED_CONFIG_ARCHIVE_MAP", "PegasusConfig", "PegasusTokenizer"],
@@ -601,7 +601,7 @@ else:
     _import_structure["models.clip"].append("CLIPFeatureExtractor")
     _import_structure["models.clip"].append("CLIPProcessor")
     _import_structure["models.convnext"].append("ConvNextFeatureExtractor")
-    _import_structure["models.omnivore"].append("yes")
+    _import_structure["models.omnivore"].append("OmnivoreFeatureExtractor")
     _import_structure["models.deit"].append("DeiTFeatureExtractor")
     _import_structure["models.detr"].append("DetrFeatureExtractor")
     _import_structure["models.dpt"].append("DPTFeatureExtractor")
@@ -953,7 +953,7 @@ else:
     _import_structure["models.omnivore"].extend(
         [
             "OMNIVORE_PRETRAINED_MODEL_ARCHIVE_LIST",
-            "OmnivoreForImageClassification",
+            "OmnivoreForJointClassification",
             "OmnivoreModel",
             "OmnivorePreTrainedModel",
         ]
@@ -2059,13 +2059,6 @@ else:
             "TFConvNextPreTrainedModel",
         ]
     )
-    _import_structure["models.omnivore"].extend(
-        [
-            "TFOmnivoreForImageClassification",
-            "TFOmnivoreModel",
-            "TFOmnivorePreTrainedModel",
-        ]
-    )
     _import_structure["models.ctrl"].extend(
         [
             "TF_CTRL_PRETRAINED_MODEL_ARCHIVE_LIST",
@@ -2813,7 +2806,6 @@ if TYPE_CHECKING:
     )
     from .models.convbert import CONVBERT_PRETRAINED_CONFIG_ARCHIVE_MAP, ConvBertConfig, ConvBertTokenizer
     from .models.convnext import CONVNEXT_PRETRAINED_CONFIG_ARCHIVE_MAP, ConvNextConfig
-    from .models.omnivore import OMNIVORE_PRETRAINED_CONFIG_ARCHIVE_MAP, OmnivoreConfig
     from .models.ctrl import CTRL_PRETRAINED_CONFIG_ARCHIVE_MAP, CTRLConfig, CTRLTokenizer
     from .models.cvt import CVT_PRETRAINED_CONFIG_ARCHIVE_MAP, CvtConfig
     from .models.data2vec import (
@@ -2897,6 +2889,7 @@ if TYPE_CHECKING:
     from .models.mpnet import MPNET_PRETRAINED_CONFIG_ARCHIVE_MAP, MPNetConfig, MPNetTokenizer
     from .models.mt5 import MT5Config
     from .models.nystromformer import NYSTROMFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP, NystromformerConfig
+    from .models.omnivore import OMNIVORE_PRETRAINED_CONFIG_ARCHIVE_MAP, OmnivoreConfig
     from .models.openai import OPENAI_GPT_PRETRAINED_CONFIG_ARCHIVE_MAP, OpenAIGPTConfig, OpenAIGPTTokenizer
     from .models.opt import OPTConfig
     from .models.pegasus import PEGASUS_PRETRAINED_CONFIG_ARCHIVE_MAP, PegasusConfig, PegasusTokenizer
@@ -3191,7 +3184,6 @@ if TYPE_CHECKING:
         from .models.beit import BeitFeatureExtractor
         from .models.clip import CLIPFeatureExtractor, CLIPProcessor
         from .models.convnext import ConvNextFeatureExtractor
-        from .models.omnivore import yes
         from .models.deit import DeiTFeatureExtractor
         from .models.detr import DetrFeatureExtractor
         from .models.dpt import DPTFeatureExtractor
@@ -3202,6 +3194,7 @@ if TYPE_CHECKING:
         from .models.layoutlmv3 import LayoutLMv3FeatureExtractor
         from .models.levit import LevitFeatureExtractor
         from .models.maskformer import MaskFormerFeatureExtractor
+        from .models.omnivore import OmnivoreFeatureExtractor
         from .models.perceiver import PerceiverFeatureExtractor
         from .models.poolformer import PoolFormerFeatureExtractor
         from .models.segformer import SegformerFeatureExtractor
@@ -3488,12 +3481,6 @@ if TYPE_CHECKING:
             ConvNextForImageClassification,
             ConvNextModel,
             ConvNextPreTrainedModel,
-        )
-        from .models.omnivore import (
-            OMNIVORE_PRETRAINED_MODEL_ARCHIVE_LIST,
-            OmnivoreForImageClassification,
-            OmnivoreModel,
-            OmnivorePreTrainedModel,
         )
         from .models.ctrl import (
             CTRL_PRETRAINED_MODEL_ARCHIVE_LIST,
@@ -3866,6 +3853,12 @@ if TYPE_CHECKING:
             NystromformerLayer,
             NystromformerModel,
             NystromformerPreTrainedModel,
+        )
+        from .models.omnivore import (
+            OMNIVORE_PRETRAINED_MODEL_ARCHIVE_LIST,
+            OmnivoreForJointClassification,
+            OmnivoreModel,
+            OmnivorePreTrainedModel,
         )
         from .models.openai import (
             OPENAI_GPT_PRETRAINED_MODEL_ARCHIVE_LIST,

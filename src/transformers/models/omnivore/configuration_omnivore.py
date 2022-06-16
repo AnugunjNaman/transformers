@@ -14,15 +14,11 @@
 # limitations under the License.
 """ Omnivore model configuration"""
 
-from collections import OrderedDict
-from typing import Mapping
-
-from packaging import version
+from torch import nn
 
 from ...configuration_utils import PretrainedConfig
-from ...onnx import OnnxConfig
 from ...utils import logging
-from torch import nn
+
 
 logger = logging.get_logger(__name__)
 
@@ -67,13 +63,14 @@ class OmnivoreConfig(PretrainedConfig):
             The bias bool for query, key and value in attentions
         qk_scale (`bool`, *optional*, defaults to None):
             Override default qk scale of head_dim ** -0.5 if set.
-        norm_layer ('nn.Module`*optional*, defaults to `nn.LayerNorm`): 
+        norm_layer (`nn.Module`, *optional*, defaults to nn.LayerNorm):
             Normalization layer for the model
-        patch_norm (`bool`, *optional*, defaults to False): 
+        patch_norm (`bool`, *optional*, defaults to False):
             If True, add normalization after patch embedding.
-        frozen_stages (`int`, *optional*, defaults to -1): 
-            Stages to be frozen (stop grad and set eval mode). -1 means not freezing any parameters.
-        
+        frozen_stages (`int`, *optional*, defaults to -1):
+            Stages to be frozen (stop grad and set eval mode) -1 means not freezing any parameters.
+        initializer_range (`float`, *optional*, defaults to 0.02):
+            The standard deviation of the truncated_normal_initializer for initializing all weight matrices.
 
     Example:
     ```python
@@ -91,20 +88,22 @@ class OmnivoreConfig(PretrainedConfig):
     def __init__(
         self,
         input_channels=3,
-        patch_size=[4, 4, 4],
+        patch_size=[2, 4, 4],
         embed_dim=96,
-        depths=[2, 2, 6, 2],
+        depths=[2, 2, 18, 2],
         num_heads=[3, 6, 12, 24],
-        window_size=(2, 7, 7),
+        window_size=(8, 7, 7),
         mlp_ratio=4.0,
         qkv_bias=True,
         qk_scale=None,
         dropout_rate=0.0,
         attention_dropout_rate=0.0,
-        drop_path_rate=0.2,
+        drop_path_rate=0.3,
         norm_layer=nn.LayerNorm,
-        patch_norm=False,
+        patch_norm=True,
         frozen_stages=-1,
+        depth_mode="summed_rgb_d_tokens",
+        initializer_range=0.02,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -123,4 +122,9 @@ class OmnivoreConfig(PretrainedConfig):
         self.norm_layer = norm_layer
         self.patch_norm = patch_norm
         self.frozen_stages = frozen_stages
-
+        self.initializer_range = initializer_range
+        self.head_dim_in = embed_dim * 8
+        self.depth_mode = depth_mode
+        self.num_image_labels = 1000
+        self.num_video_labels = 400
+        self.num_rgbd_labels = 19

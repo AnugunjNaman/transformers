@@ -14,10 +14,14 @@
 # limitations under the License.
 """Feature extractor class for Omnivore."""
 
-from typing import Optional, Union, BinaryIO, Sequence
+from typing import BinaryIO, Optional, Sequence, Union
 
 import numpy as np
+import torch
 from PIL import Image
+from torch import nn
+from torchvision import transforms as T
+from torchvision.transforms._transforms_video import NormalizeVideo
 
 from ...feature_extraction_utils import BatchFeature, FeatureExtractionMixin
 from ...image_utils import (
@@ -29,26 +33,21 @@ from ...image_utils import (
 )
 from ...utils import TensorType, logging
 
-import torch
-from torch import nn
-from torchvision import transforms as T
-from torchvision.transforms._transforms_video import NormalizeVideo
 
 try:
     from pytorchvideo.data.encoded_video import EncodedVideo
     from pytorchvideo.transforms import ApplyTransformToKey, ShortSideScale, UniformTemporalSubsample
 except ModuleNotFoundError:
-    raise ModuleNotFoundError('pytorchvideo is missing. please install pytorchvideo')
+    raise ModuleNotFoundError("pytorchvideo is missing. please install pytorchvideo")
 
 logger = logging.get_logger(__name__)
 
+
 class DepthNorm(nn.Module):
     """
-    Normalize the depth channel: in an RGBD input of shape (4, H, W),
-    only the last channel is modified.
-    The depth channel is also clamped at 0.0. The Midas depth prediction
-    model outputs inverse depth maps - negative values correspond
-    to distances far away so can be clamped at 0.0
+    Normalize the depth channel: in an RGBD input of shape (4, H, W), only the last channel is modified. The depth
+    channel is also clamped at 0.0. The Midas depth prediction model outputs inverse depth maps - negative values
+    correspond to distances far away so can be clamped at 0.0
     """
 
     def __init__(
@@ -72,9 +71,7 @@ class DepthNorm(nn.Module):
     def forward(self, image: torch.Tensor):
         channels, height, width = image.shape
         if channels != 4:
-            err_msg = (
-                f"This transform is for 4 channel RGBD input only; got {image.shape}"
-            )
+            err_msg = f"This transform is for 4 channel RGBD input only; got {image.shape}"
             raise ValueError(err_msg)
         color_img = image[:3, ...]  # (3, H, W)
         depth_img = image[3:4, ...]  # (1, H, W)
@@ -113,11 +110,9 @@ class TemporalCrop(nn.Module):
 class SpatialCrop(nn.Module):
     """
     Convert the video into 3 smaller clips spatially. Must be used after the
-        temporal crops to get spatial crops, and should be used with
-        -2 in the spatial crop at the slowfast augmentation stage (so full
-        frames are passed in here). Will return a larger list with the
-        3x spatial crops as well. It's useful for 3x4 testing (eg in SwinT)
-        or 3x10 testing in SlowFast etc.
+        temporal crops to get spatial crops, and should be used with -2 in the spatial crop at the slowfast
+        augmentation stage (so full frames are passed in here). Will return a larger list with the 3x spatial crops as
+        well. It's useful for 3x4 testing (eg in SwinT) or 3x10 testing in SlowFast etc.
     """
 
     def __init__(self, crop_size: int = 224, num_crops: int = 3):
@@ -128,10 +123,7 @@ class SpatialCrop(nn.Module):
         elif num_crops == 1:
             self.crops_to_ext = [1]
         else:
-            raise NotImplementedError(
-                "Nothing else supported yet, "
-                "slowfast only takes 0, 1, 2 as arguments"
-            )
+            raise NotImplementedError("Nothing else supported yet, slowfast only takes 0, 1, 2 as arguments")
 
     def forward(self, videos: Sequence[torch.Tensor]):
         """
@@ -152,12 +144,11 @@ class SpatialCrop(nn.Module):
 
 def crop_boxes(boxes, x_offset, y_offset):
     """
-    Peform crop on the bounding boxes given the offsets.
     Args:
+    Peform crop on the bounding boxes given the offsets.
         boxes (ndarray or None): bounding boxes to peform crop. The dimension
             is `num boxes` x 4.
-        x_offset (int): cropping offset in the x axis.
-        y_offset (int): cropping offset in the y axis.
+        x_offset (int): cropping offset in the x axis. y_offset (int): cropping offset in the y axis.
     Returns:
         cropped_boxes (ndarray or None): the cropped boxes with dimension of
             `num boxes` x 4.
@@ -171,14 +162,13 @@ def crop_boxes(boxes, x_offset, y_offset):
 
 def uniform_crop(images, size, spatial_idx, boxes=None, scale_size=None):
     """
-    Perform uniform spatial sampling on the images and corresponding boxes.
     Args:
+    Perform uniform spatial sampling on the images and corresponding boxes.
         images (tensor): images to perform uniform crop. The dimension is
             `num frames` x `channel` x `height` x `width`.
-        size (int): size of height and weight to crop the images.
-        spatial_idx (int): 0, 1, or 2 for left, center, and right crop if width
-            is larger than height. Or 0, 1, or 2 for top, center, and bottom
-            crop if height is larger than width.
+        size (int): size of height and weight to crop the images. spatial_idx (int): 0, 1, or 2 for left, center, and
+        right crop if width
+            is larger than height. Or 0, 1, or 2 for top, center, and bottom crop if height is larger than width.
         boxes (ndarray or None): optional. Corresponding boxes to images.
             Dimension is `num boxes` x 4.
         scale_size (int): optinal. If not None, resize the images to scale_size before
@@ -201,9 +191,7 @@ def uniform_crop(images, size, spatial_idx, boxes=None, scale_size=None):
             width, height = scale_size, int(height / width * scale_size)
         else:
             width, height = int(width / height * scale_size), scale_size
-        images = torch.nn.functional.interpolate(
-            images, size=(height, width), mode="bilinear", align_corners=False
-        )
+        images = torch.nn.functional.interpolate(images, size=(height, width), mode="bilinear", align_corners=False)
 
     y_offset = int(math.ceil((height - size) / 2))
     x_offset = int(math.ceil((width - size) / 2))
@@ -263,15 +251,15 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
         do_normalize=True,
         image_mean=IMAGENET_DEFAULT_MEAN,
         image_std=IMAGENET_DEFAULT_STD,
-        num_frames = 160,
-        sampling_rate = 2,
-        frames_per_second = 30,
-        frames_per_clip = 32,
-        video_stride = 40,
-        video_crop_size = 224,
-        num_of_crops_in_video = 3,
-        max_depth = 75.0,
-        clamp_max_before_scale = True,
+        num_frames=160,
+        sampling_rate=2,
+        frames_per_second=30,
+        frames_per_clip=32,
+        video_stride=40,
+        video_crop_size=224,
+        num_of_crops_in_video=3,
+        max_depth=75.0,
+        clamp_max_before_scale=True,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -283,7 +271,7 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
         self.image_mean = image_mean
         self.image_std = image_std
         self.num_frames = num_frames
-        self.sampling_rate = sampling_rate,
+        self.sampling_rate = (sampling_rate,)
         self.frames_per_second = frames_per_second
         self.frames_per_clip = frames_per_clip
         self.video_stride = video_stride
@@ -292,9 +280,7 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
         self.max_depth = max_depth
         self.clamp_max_before_scale = clamp_max_before_scale
 
-    def __call__(
-        self, images: ImageInput, return_tensors: Optional[Union[str, TensorType]] = None, **kwargs
-    ):
+    def __call__(self, inputs, input_type, return_tensors: Optional[Union[str, TensorType]] = None, **kwargs):
         """
         Main method to prepare for the model one or several image(s).
 
@@ -326,12 +312,15 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
               width).
         """
         # Input type checking for clearer error
-        valid_images = False
-        self.inputs = []
-        self.input_types = []
+        if input_type == "image":
+            return self.preprocess_images(inputs, return_tensors)
+        elif input_type == "video":
+            return self.preprocess_videos(inputs, return_tensors)
+        elif input_type == "rgbd":
+            return self.preprocess_rgbd(inputs["images"], inputs["depths"], return_tensors)
+        else:
+            raise ValueError("""Input type not supported> Support inputs are "images", "videos" and "rgbd"""")
 
-        return self.inputs
-    
     def preprocess_images(self, images: ImageInput, return_tensors: Optional[Union[str, TensorType]] = None, **kwargs):
         valid_images = False
         if isinstance(images, (Image.Image, np.ndarray)) or is_torch_tensor(images):
@@ -357,10 +346,7 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
         # transformations (resizing + center cropping + normalization)
         if self.do_resize and self.size is not None:
             size_ = int((256 / 224) * self.size)
-            images = [
-                self.resize(image=image, size=size_, resample=self.resample)
-                for image in images
-            ]
+            images = [self.resize(image=image, size=size_, resample=self.resample) for image in images]
         if self.do_center_crop:
             images = [self.center_crop(image=image, size=self.size) for image in images]
         if self.do_normalize:
@@ -393,7 +379,7 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
     def transform_videos(self):
         video_transform = ApplyTransformToKey(
             key="video",
-            transform = T.Compose(
+            transform=T.Compose(
                 [
                     UniformTemporalSubsample(self.num_frames),
                     T.Lambda(lambda x: x / 255.0),
@@ -402,20 +388,25 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
                     TemporalCrop(frames_per_clip=self.frames_per_clip, stride=self.frames_per_clip),
                     SpatialCrop(crop_size=self.video_crop_size, num_crops=self.num_of_crops_in_video),
                 ]
-            )
+            ),
         )
 
         return video_transform
 
-    
-    def preprocess_rgbd(self, rgbd_images, rgbd_depths, return_tensors: Optional[Union[str, TensorType]] = None, **kwargs):
+    def preprocess_rgbd(
+        self, rgbd_images, rgbd_depths, return_tensors: Optional[Union[str, TensorType]] = None, **kwargs
+    ):
         valid_images, valid_depths = False, False
         if isinstance(rgbd_images, (Image.Image, np.ndarray)) or is_torch_tensor(rgbd_images):
             valid_images = True
         elif isinstance(rgbd_images, (list, tuple)):
-            if len(rgbd_images) == 0 or isinstance(rgbd_images[0], (Image.Image, np.ndarray)) or is_torch_tensor(rgbd_images[0]):
+            if (
+                len(rgbd_images) == 0
+                or isinstance(rgbd_images[0], (Image.Image, np.ndarray))
+                or is_torch_tensor(rgbd_images[0])
+            ):
                 valid_images = True
-        
+
         if is_torch_tensor(rgbd_depths):
             valid_depths = True
         elif isinstance(rgbd_depths, (list, tuple)):
@@ -425,12 +416,12 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
         if not valid_images or not valid_depths:
             raise ValueError(
                 """
-                RGBD Image or Depth File not in supported format, 
-                Images must of type `PIL.Image.Image`, `np.ndarray` or `torch.Tensor` (single example), 
-                `List[PIL.Image.Image]`, `List[np.ndarray]` or `List[torch.Tensor]` (batch of examples).
+                RGBD Image or Depth File not in supported format, Images must of type `PIL.Image.Image`, `np.ndarray`
+                or `torch.Tensor` (single example), `List[PIL.Image.Image]`, `List[np.ndarray]` or `List[torch.Tensor]`
+                (batch of examples).
                 
-                Depths must have `torch.Tensor`, `np.ndarry` (single example), 
-                `List[np.ndarray]` or `List[torch.Tensor]` (batch of examples)
+                Depths must have `torch.Tensor`, `np.ndarry` (single example), `List[np.ndarray]` or
+                `List[torch.Tensor]` (batch of examples)
                 """
             )
 
@@ -438,16 +429,13 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
             isinstance(rgbd_images, (list, tuple))
             and (isinstance(rgbd_images[0], (Image.Image, np.ndarray)) or is_torch_tensor(rgbd_images[0]))
         )
-        is_batched_depth = bool(
-            isinstance(rgbd_images, (list, tuple))
-            and (is_torch_tensor(rgbd_depths[0]))
-        )
+        is_batched_depth = bool(isinstance(rgbd_images, (list, tuple)) and (is_torch_tensor(rgbd_depths[0])))
 
         if not is_batched_image:
             if not is_batched_depth:
                 rgbd_images = [rgbd_images]
                 rgbd_depths = [rgbd_depths]
-            else: 
+            else:
                 logger.error("There is a mis-match in number of images and depths")
 
         rgbd_images = [self.convert_rgb(rgbd_image) for rgbd_image in rgbd_images]
@@ -457,10 +445,7 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
         rgbds = [depth_norm(rgbd) for rgbd in rgbds]
         # transformations (resizing + center cropping + normalization)
         if self.do_resize and self.size is not None:
-            rgbds = [
-                self.resize(image=rgbd, size=self.size, resample=self.resample)
-                for rgbd in rgbds
-            ]
+            rgbds = [self.resize(image=rgbd, size=self.size, resample=self.resample) for rgbd in rgbds]
         if self.do_center_crop:
             rgbds = [self.center_crop(image=rgbd, size=self.size) for rgbd in rgbds]
         if self.do_normalize:
@@ -471,6 +456,3 @@ class OmnivoreFeatureExtractor(FeatureExtractionMixin, ImageFeatureExtractionMix
         data = {"pixel_values": rgbds, "pixel_input_type": input_type}
         encoded_inputs = BatchFeature(data=data, tensor_type=return_tensors)
         return encoded_inputs
-
-    
-    

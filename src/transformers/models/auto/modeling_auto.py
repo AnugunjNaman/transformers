@@ -43,7 +43,6 @@ MODEL_MAPPING_NAMES = OrderedDict(
         ("clip", "CLIPModel"),
         ("convbert", "ConvBertModel"),
         ("convnext", "ConvNextModel"),
-        ("omnivore", "OmnivoreModel"),
         ("ctrl", "CTRLModel"),
         ("cvt", "CvtModel"),
         ("data2vec-audio", "Data2VecAudioModel"),
@@ -91,6 +90,7 @@ MODEL_MAPPING_NAMES = OrderedDict(
         ("mpnet", "MPNetModel"),
         ("mt5", "MT5Model"),
         ("nystromformer", "NystromformerModel"),
+        ("omnivore", "OmnivoreModel"),
         ("openai-gpt", "OpenAIGPTModel"),
         ("opt", "OPTModel"),
         ("pegasus", "PegasusModel"),
@@ -312,12 +312,12 @@ MODEL_FOR_IMAGE_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
         # Model for Image Classification mapping
         ("beit", "BeitForImageClassification"),
         ("convnext", "ConvNextForImageClassification"),
-        ("omnivore", "OmnivoreForJointClassification"),
         ("cvt", "CvtForImageClassification"),
         ("data2vec-vision", "Data2VecVisionForImageClassification"),
         ("deit", ("DeiTForImageClassification", "DeiTForImageClassificationWithTeacher")),
         ("imagegpt", "ImageGPTForImageClassification"),
         ("levit", ("LevitForImageClassification", "LevitForImageClassificationWithTeacher")),
+        ("omnivore", "OmnivoreForJointClassification"),
         (
             "perceiver",
             (
